@@ -129,12 +129,9 @@ def batch_generator(X, y, batch_size, shuffle):
 
 def main():
 
-    experiment = Experiment(api_key="kZ9EvZnOe5Kdw40yNNY4UXNu3",
-                        project_name="singapore-airlines", workspace="demos")
+    experiment = Experiment(api_key="ERPBfa6mmwJzQnk61oiqLOCie",
+                        project_name="nlp-airline", workspace="demo")
 
-    experiment.log_metric('val_acc', 6)
-    experiment.log_hyperparamter('test_parameter', 'hello')
-    experiment.log_dataset_hash(x_train)
 
     raw_df = pd.read_csv(f'{DATA}Tweets.csv')
 
