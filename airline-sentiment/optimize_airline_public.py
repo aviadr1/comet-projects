@@ -108,7 +108,7 @@ class PreProcessor:
 
 
 
-DATA = '/Users/nikolaskaris/Desktop/twitter-airline-sentiment/'
+DATA = '.../YOUR_DATA_PATH'
 
 
 # Generator so we can easily feed batches of data to the neural network
@@ -133,8 +133,8 @@ def batch_generator(X, y, batch_size, shuffle):
 
 def main():
 
-    experiment = Experiment(api_key="ERPBfa6mmwJzQnk61oiqLOCie",
-                        project_name="optimizer_demo", workspace="demo")
+    experiment = Experiment(api_key="API_KEY",
+                        project_name="PROJECT", workspace="WORKSPACE")
 
 
     raw_df = pd.read_csv(f'{DATA}Tweets.csv')

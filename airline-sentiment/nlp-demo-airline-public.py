@@ -1,7 +1,5 @@
 # Comet
 from comet_ml import Experiment
-from comet_ml import Optimizer
-import logging
 
 # Standard packages
 import os
@@ -108,7 +106,7 @@ class PreProcessor:
 
 
 
-DATA = '/Users/nikolaskaris/Desktop/twitter-airline-sentiment/'
+DATA = '.../YOUR_DATA_PATH'
 
 
 # Generator so we can easily feed batches of data to the neural network
@@ -129,12 +127,10 @@ def batch_generator(X, y, batch_size, shuffle):
                 np.random.shuffle(sample_index)
             counter = 0
 
-
-
 def main():
 
-    experiment = Experiment(api_key="ERPBfa6mmwJzQnk61oiqLOCie",
-                        project_name="optimizer_demo", workspace="demo")
+    experiment = Experiment(api_key="API_KEY",
+                        project_name="PROJECT", workspace="WORKSPACE")
 
 
     raw_df = pd.read_csv(f'{DATA}Tweets.csv')
@@ -179,54 +175,29 @@ def main():
     integer_encoded_val = np.array(y_val).reshape(len(y_val), 1)
     onehot_encoded_val = onehot_encoder.fit_transform(integer_encoded_val)
 
-    # One hot for test_set
-    integer_encoded_test = np.array(y_test).reshape(len(y_test), 1)
-    onehot_encoded_test = onehot_encoder.fit_transform(integer_encoded_test)
+    # Neural network architecture
+    initializer = keras.initializers.he_normal(seed=seed)
+    activation = keras.activations.elu
+    optimizer = keras.optimizers.Adam(lr=0.0005, beta_1=0.99, beta_2=0.999, epsilon=1e-8)
+    es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=4)
 
-    from comet_ml import Optimizer
+    # Build model architecture
+    model = Sequential()
+    model.add(Dense(20, activation=activation, kernel_initializer=initializer, input_dim=X_train.shape[1]))
+    model.add(Dropout(0.5))
+    model.add(Dense(3, activation='softmax', kernel_initializer=initializer))
+    model.compile(optimizer=optimizer,
+                  loss='binary_crossentropy',
+                  metrics=['accuracy'])
 
-    config = {
-    "algorithm": "bayes",
-    "parameters": {
-        "batch_size": {"type": "integer", "min": 16, "max": 128},
-        "dropout": {"type": "float", "min": 0.1, "max": 0.5},
-        "lr": {"type": "float", "min": 0.0001, "max": 0.001},
-        "beta1": {"type": "float", "min": 0.95, "max": 0.999},
-        "beta2": {"type": "float", "min": 0.95, "max": 0.999},
-        "epsilon": {"type": "float", "min": 1e-9, "max": 1e-7},
-        "patience": {"type": "integer", "min": 3, "max": 7}
-    },
-    "spec": {
-        "metric": "loss",
-        "objective": "minimize",
-    },
-    }
+    # Hyperparameters
+    epochs = 50
+    batch_size = 32
 
-    opt = Optimizer(config, api_key="ERPBfa6mmwJzQnk61oiqLOCie", project_name="nlp-airline", workspace="demo")
-
-    for experiment in opt.get_experiments():
-        experiment.add_tag('LR-Optimizer')
-        # Neural network architecture
-        initializer = keras.initializers.he_normal(seed=seed)
-        activation = keras.activations.elu
-        optimizer = keras.optimizers.Adam(lr=experiment.get_parameter("lr"), beta_1=experiment.get_parameter("beta1"), beta_2=experiment.get_parameter("beta2"), epsilon=experiment.get_parameter('epsilon'))
-        es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=4)
-
-        batch_size = experiment.get_parameter("batch_size")
-        # Build model architecture
-        model = Sequential()
-        model.add(Dense(20, activation=activation, kernel_initializer=initializer, input_dim=X_train.shape[1]))
-        model.add(Dropout(experiment.get_parameter("dropout")))
-        model.add(Dense(3, activation='softmax', kernel_initializer=initializer))
-        model.compile(optimizer=optimizer,
-                      loss='binary_crossentropy',
-                      metrics=['accuracy'])
-        # Fit the model using the batch_generator
-        hist = model.fit_generator(generator=batch_generator(X_train, onehot_encoded_train, batch_size=batch_size, shuffle=True),
-                                   epochs=5, validation_data=(X_val, onehot_encoded_val),
-                                   steps_per_epoch=X_train.shape[0]/batch_size, callbacks=[es])
-        score = model.evaluate(X_test, onehot_encoded_test, verbose=0)
-        logging.info("Score %s", score)
+    # Fit the model using the batch_generator
+    hist = model.fit_generator(generator=batch_generator(X_train, onehot_encoded_train, batch_size=batch_size, shuffle=True),
+                               epochs=epochs, validation_data=(X_val, onehot_encoded_val),
+                               steps_per_epoch=X_train.shape[0]/batch_size, callbacks=[es])
 
 
 if __name__ == "__main__":
