@@ -1,5 +1,5 @@
 # Getting Started with Natural Language Processing: US Airline Tweet Sentiment Analysis
-![](https://www.comet.ml/api/image/notes/download?imageId=yLrgS7qML1ihHuWboIdC5eZso&amp;objectId=ef4e6b5d1a4e4767b036d797f9b9bded)
+![](https://www.comet.ml/api/image/notes/download?imageId=KfIlDZ4EkR3ofDsEIM8moiq5j&objectId=ef4e6b5d1a4e4767b036d797f9b9bded)
 
 # Comet
 To use this getting started project to start logging NLP modeling tasks to [Comet.ml](www.comet.ml), make sure you have signed up and know your Comet API_KEY. Please consult the [docs](https://www.comet.ml/docs/) for more information and setting up your Comet configuration before running experiments.mv 
