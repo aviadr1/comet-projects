@@ -108,7 +108,7 @@ class PreProcessor:
 
 
 
-DATA = '/Users/nikolaskaris/Desktop/twitter-airline-sentiment/'
+DATA = '.../YOUR_DATA_PATH'
 
 
 # Generator so we can easily feed batches of data to the neural network
@@ -133,8 +133,8 @@ def batch_generator(X, y, batch_size, shuffle):
 
 def main():
 
-    experiment = Experiment(api_key="ERPBfa6mmwJzQnk61oiqLOCie",
-                        project_name="nlp-airline", workspace="demo")
+    experiment = Experiment(api_key="API_KEY",
+                        project_name="PROJECT", workspace="WORKSPACE")
 
 
     raw_df = pd.read_csv(f'{DATA}Tweets.csv')
@@ -191,6 +191,10 @@ def main():
         "batch_size": {"type": "integer", "min": 16, "max": 128},
         "dropout": {"type": "float", "min": 0.1, "max": 0.5},
         "lr": {"type": "float", "min": 0.0001, "max": 0.001},
+        "beta1": {"type": "float", "min": 0.95, "max": 0.999},
+        "beta2": {"type": "float", "min": 0.95, "max": 0.999},
+        "epsilon": {"type": "float", "min": 1e-9, "max": 1e-7},
+        "patience": {"type": "integer", "min": 3, "max": 7}
     },
     "spec": {
         "metric": "loss",
@@ -205,7 +209,7 @@ def main():
         # Neural network architecture
         initializer = keras.initializers.he_normal(seed=seed)
         activation = keras.activations.elu
-        optimizer = keras.optimizers.Adam(lr=experiment.get_parameter("lr"), beta_1=0.99, beta_2=0.999, epsilon=1e-8)
+        optimizer = keras.optimizers.Adam(lr=experiment.get_parameter("lr"), beta_1=experiment.get_parameter("beta1"), beta_2=experiment.get_parameter("beta2"), epsilon=experiment.get_parameter('epsilon'))
         es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=4)
 
         batch_size = experiment.get_parameter("batch_size")
@@ -219,7 +223,7 @@ def main():
                       metrics=['accuracy'])
         # Fit the model using the batch_generator
         hist = model.fit_generator(generator=batch_generator(X_train, onehot_encoded_train, batch_size=batch_size, shuffle=True),
-                                   epochs=40, validation_data=(X_val, onehot_encoded_val),
+                                   epochs=5, validation_data=(X_val, onehot_encoded_val),
                                    steps_per_epoch=X_train.shape[0]/batch_size, callbacks=[es])
         score = model.evaluate(X_test, onehot_encoded_test, verbose=0)
         logging.info("Score %s", score)
