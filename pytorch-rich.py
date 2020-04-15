@@ -21,7 +21,7 @@ hyper_params = {
     "learning_rate": 0.02
 }
 
-experiment = Experiment(api_key="ERPBfa6mmwJzQnk61oiqLOCie",
+experiment = Experiment(api_key="API_KEY",
                         project_name="rich-logging", workspace="demo")
 
 # MNIST Dataset
